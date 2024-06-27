@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+<head>
+<title>Codef template</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+
+<style>
+* {
+  font-family: 'Roboto', sans-serif;
+}
+</style>
+
+</head>
+<body>
+  
+<section class="hero">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title">Website zip</h1>
+
+      <div class="field">
+        <label class="label">HTML</label>
+        <div class="control">
+          <textarea id="html-input" class="textarea" placeholder="Paste your html in here"></textarea>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">CSS</label>
+        <div class="control">
+          <textarea id="css-input" class="textarea" placeholder="Paste your css in here"></textarea>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">JS</label>
+        <div class="control">
+          <textarea id="js-input" class="textarea" placeholder="Paste your js in here"></textarea>
+        </div>
+      </div>
+
+      <div class="field is-grouped">
+        <div class="control">
+          <button id="download-files" class="button is-link">Download</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<script>
+
+document.getElementById('download-files').addEventListener('click', function() {
+    var zip = new JSZip();
+    var htmlContent = document.getElementById('html-input').value;
+    var cssContent = document.getElementById('css-input').value.trim();
+    var jsContent = document.getElementById('js-input').value.trim();
+
+    // Conditionally add CSS link tag if CSS content is not empty
+    if (cssContent) {
+        var headCloseTagIndex = htmlContent.indexOf('</head>');
+        if (headCloseTagIndex !== -1) {
+            htmlContent = htmlContent.slice(0, headCloseTagIndex) + 
+                          '<link rel="stylesheet" href="style.css">' +
+                          htmlContent.slice(headCloseTagIndex);
+        }
+    }
+
+    // Conditionally add JS script tag if JS content is not empty
+    if (jsContent) {
+        var bodyCloseTagIndex = htmlContent.lastIndexOf('</body>');
+        if (bodyCloseTagIndex !== -1) {
+          htmlContent = `${htmlContent.slice(0, bodyCloseTagIndex)}
+                          <script src="script.js"></${'script'}>
+                          ${htmlContent.slice(bodyCloseTagIndex)}`
+        }
+    }
+
+    // Add the HTML file to the ZIP
+    zip.file("index.html", htmlContent);
+
+    // Conditionally add the CSS file to the ZIP
+    if (cssContent) {
+        console.log('cccccccc', cssContent)
+        zip.file("style.css", cssContent);
+    }
+
+    // Conditionally add the JS file to the ZIP
+    if (jsContent) {
+        zip.file("script.js", jsContent);
+    }
+
+    // Generate the ZIP file and trigger the download
+    zip.generateAsync({type:"blob"})
+        .then(function(content) {
+            // Use FileSaver to save the generated blob
+            saveAs(content, "website.zip");
+        });
+});
+
+</script>
+
+</body>
+</html>
